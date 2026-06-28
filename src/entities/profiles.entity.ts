@@ -29,7 +29,7 @@ export class Profile extends BaseEntity {
 
   @Field()
   @Column("text")
-  county!: string;
+  country!: string;
 
   @Field()
   @Column("text")

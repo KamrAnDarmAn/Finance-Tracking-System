@@ -7,7 +7,7 @@ import { GraphQLContext } from "./types/index.js";
 import helmet from "helmet";
 import cors from "cors";
 import { buildSchema } from "type-graphql";
-import { UserResolvers } from "./resolvers/authResolvers.js";
+import { UserResolvers } from "./resolvers/auth.resolver.ts";
 // import { initializeDatabase } from "./config/data-source.js
 
 import { AppDataSource } from "@/data-source.ts";

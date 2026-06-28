@@ -8,12 +8,26 @@ import {
   Args,
   ObjectType,
   Ctx,
+  InputType,
 } from "type-graphql";
 import { User } from "../entities/users.entity.ts";
 import bcrypt from "bcryptjs";
-import { GraphQLContext } from "../types/index.js";
-import { createAccessToken, createRefereshToken } from "../lib/auth.js";
-import { success } from "zod";
+import { GraphQLContext } from "../types/index.ts";
+import { createAccessToken, createRefereshToken } from "../lib/auth.ts";
+
+@ArgsType()
+class ProfileInput {
+  @Field(() => String, { nullable: true })
+  phone!: string;
+  @Field(() => String, { nullable: true })
+  address!: string;
+  @Field(() => String, { nullable: true })
+  city!: string;
+  @Field(() => String, { nullable: true })
+  country!: string;
+  @Field(() => String, { nullable: true })
+  postalCode!: string;
+}
 
 @ArgsType()
 class CredentialsArgs {
@@ -53,8 +67,10 @@ export class UserResolvers {
   @Mutation((returns) => AuthPayload)
   async signup(
     @Arg("email", () => String!, { nullable: false }) email: string,
-    @Arg("username", () => String!, { nullable: false }) username: string,
     @Arg("password", () => String!, { nullable: false }) password: string,
+    @Arg("firstName", () => String!, { nullable: false }) firstName: string,
+    @Arg("lastName", () => String, { nullable: false }) lastName: string,
+    @Args() profile: ProfileInput
     @Ctx() { res }: GraphQLContext,
   ) {
     try {
@@ -72,6 +88,9 @@ export class UserResolvers {
       const newUser = await User.create({
         email,
         password: hashedPassword,
+        firstName,
+        lastName,
+        
       });
 
       newUser.save();

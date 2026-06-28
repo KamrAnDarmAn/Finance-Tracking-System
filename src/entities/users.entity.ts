@@ -44,7 +44,7 @@ export class User extends BaseEntity {
   @Column("text")
   firstName!: string;
 
-  @Field((type) => String!)
+  @Field((type) => String)
   @Column("text")
   lastName!: string;
 
