@@ -7,7 +7,7 @@ export const AppDataSource = new DataSource({
   port: 5432,
   username: "postgres",
   password: "Charlie",
-  database: "type-graphql-practice",
+  database: "finance_tracking_system",
   synchronize: true, // Set to false in production to prevent data loss!
   logging: false,
   // entities: [__dirname + "/entities/**/*.ts"],

@@ -20,11 +20,11 @@ export class Investment extends BaseEntity {
   id!: string;
 
   @Field((type) => String)
-  @Column()
+  @Column("text")
   trickerSymbol!: string;
 
   @Field((type) => String)
-  @Column()
+  @Column("text")
   name!: string;
 
   @Field((type) => Float)
@@ -39,7 +39,10 @@ export class Investment extends BaseEntity {
   @JoinColumn({ name: "account_id" })
   account!: Account;
 
-  @ManyToOne(() => InvestmentType, (investmentType) => investmentType.investments)
+  @ManyToOne(
+    () => InvestmentType,
+    (investmentType) => investmentType.investments,
+  )
   @JoinColumn({ name: "investment_type_id" })
   investmentType!: InvestmentType;
 

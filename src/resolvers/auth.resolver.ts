@@ -9,13 +9,17 @@ import {
   ObjectType,
   Ctx,
   InputType,
+  Authorized,
+  UseMiddleware,
 } from "type-graphql";
 import { User } from "../entities/users.entity.ts";
 import bcrypt from "bcryptjs";
 import { GraphQLContext } from "../types/index.ts";
 import { createAccessToken, createRefereshToken } from "../lib/auth.ts";
+import { db } from "@/lib/db.ts";
+import { testMiddlware } from "@/middlewares/test.middleware.ts";
 
-@ArgsType()
+@InputType()
 class ProfileInput {
   @Field(() => String, { nullable: true })
   phone!: string;
@@ -53,16 +57,15 @@ class AuthPayload {
   message!: string;
 }
 
-@Resolver(User)
-export class UserResolvers {
-  @Query((returns) => String)
-  health() {
-    return "ok";
-  }
-
+@Resolver()
+export class AuthResolvers {
   @Query((returns) => [User])
-  users() {
-    return User.find();
+  async users() {
+    const users = await User.find();
+
+    if (!users) return [];
+
+    return users;
   }
   @Mutation((returns) => AuthPayload)
   async signup(
@@ -70,11 +73,11 @@ export class UserResolvers {
     @Arg("password", () => String!, { nullable: false }) password: string,
     @Arg("firstName", () => String!, { nullable: false }) firstName: string,
     @Arg("lastName", () => String, { nullable: false }) lastName: string,
-    @Args() profile: ProfileInput
+    @Arg("profile", () => ProfileInput) profile: ProfileInput,
     @Ctx() { res }: GraphQLContext,
   ) {
     try {
-      const user = await User.findOneBy({ email });
+      const user = await db.user.findOneBy({ email });
 
       if (user) {
         return {
@@ -85,15 +88,20 @@ export class UserResolvers {
       }
 
       const hashedPassword = await bcrypt.hash(password, 12);
-      const newUser = await User.create({
+      const newUser = await db.user.create({
         email,
         password: hashedPassword,
         firstName,
         lastName,
-        
       });
 
       newUser.save();
+
+      if (profile) {
+        const newProfile = db.profile.create({ ...profile });
+        newProfile.user = newUser;
+        newProfile.save();
+      }
 
       const accessToken = createAccessToken({ userId: newUser.id });
       const refereshToken = createRefereshToken({ userId: newUser.id });
@@ -119,7 +127,7 @@ export class UserResolvers {
     @Ctx() { res }: GraphQLContext,
   ) {
     try {
-      const user = await User.findOneBy({ email });
+      const user = await db.user.findOneBy({ email });
       if (!user)
         return { success: false, token: null, message: "Invalid credentials" };
 
@@ -129,6 +137,8 @@ export class UserResolvers {
 
       const accessToken = await createAccessToken({ userId: user.id });
       const refereshToken = await createRefereshToken({ userId: user.id });
+      console.log("REFERESH TOKEN:", refereshToken);
+      console.log("ACCESS TOKEN:", accessToken);
       res.cookie("jit", refereshToken);
       return {
         success: true,
@@ -142,5 +152,17 @@ export class UserResolvers {
         message: "Unexpected Server Error.",
       };
     }
+  }
+
+  @Query((returns) => User)
+  @Authorized()
+  async me(@Ctx() { req }: GraphQLContext) {
+    // if (!session) return null;
+    console.log(req.user);
+    // const user = await session();
+    // return await db.user.findOneBy({ id: user!.userId });
+    const user = await db.user.find();
+
+    return user[0];
   }
 }

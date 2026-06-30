@@ -6,11 +6,13 @@ import { expressMiddleware } from "@as-integrations/express5";
 import { GraphQLContext } from "./types/index.js";
 import helmet from "helmet";
 import cors from "cors";
-import { buildSchema } from "type-graphql";
-import { UserResolvers } from "./resolvers/auth.resolver.ts";
+import { AuthChecker, buildSchema } from "type-graphql";
+import { AuthResolvers } from "./resolvers/auth.resolver.ts";
 // import { initializeDatabase } from "./config/data-source.js
 
 import { AppDataSource } from "@/data-source.ts";
+import { authChecker, verifyAccessToken } from "./lib/auth.ts";
+import { UserResolver } from "./resolvers/user.resolver.ts";
 
 const app = express();
 
@@ -23,7 +25,9 @@ await AppDataSource.initialize();
 
 export const server = new ApolloServer({
   schema: await buildSchema({
-    resolvers: [UserResolvers],
+    resolvers: [AuthResolvers, UserResolver],
+    authChecker,
+    validateFn: (argValue, argType) => {},
   }),
 });
 
@@ -37,7 +41,17 @@ app.use(
     context: async ({ req, res }): Promise<GraphQLContext> => ({
       req,
       res,
-      health: () => "ok!",
+      session: async () => {
+        try {
+          const token = req.headers["authorization"]?.split(" ")[1];
+          if (!token) return null;
+          const decode = (await verifyAccessToken(token)) as { userId: string };
+          return { userId: decode.userId };
+        } catch (error) {
+          console.log(error);
+          return null;
+        }
+      },
     }),
   }),
 );

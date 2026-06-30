@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ForeignKey,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -11,20 +12,23 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { Account } from "./accounts.entity.ts";
-import { AuditLogs } from "./audit-logs.entity.ts";
-import { Bill } from "./bills.entity.ts";
-import { Budget } from "./budgets.entity.ts";
-import { Category } from "./categories.entity.ts";
-import { Currency } from "./currencies.entity.ts";
-import { Debt } from "./debts.entity.ts";
-import { Goal } from "./goals.entity.ts";
-import { Merchants } from "./merchants.entity.ts";
-import { Notification } from "./notifications.entity.ts";
-import { Profile } from "./profiles.entity.ts";
-import { Tag } from "./tags.entity.ts";
-import { TaxFiling } from "./tax-filings.entity.ts";
-import { UserPreferences } from "./user-preferences.entity.ts";
+import {
+  Account,
+  AuditLogs,
+  Bill,
+  Budget,
+  Category,
+  Currency,
+  Debt,
+  Goal,
+  Merchants,
+  Notification,
+  Profile,
+  Tag,
+  TaxFiling,
+  UserPreferences,
+} from "@/entities/index.ts";
+import z from "zod";
 
 @ObjectType()
 @Entity("users")
@@ -41,10 +45,10 @@ export class User extends BaseEntity {
   password!: string;
 
   @Field((type) => String!)
-  @Column("text")
+  @Column("text", { default: "" })
   firstName!: string;
 
-  @Field((type) => String)
+  @Field((type) => String, { nullable: true })
   @Column("text")
   lastName!: string;
 
@@ -56,46 +60,56 @@ export class User extends BaseEntity {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @OneToOne(() => Profile, (profile) => profile.user)
+  // @ForeignKey(() => String)
+  // profileId!: string;
+
+  @Field(() => Profile, { nullable: true })
+  _profile!: Profile;
+
+  @OneToOne(() => Profile, (profile) => profile.user, { cascade: true })
   profile!: Profile;
 
-  @OneToOne(() => UserPreferences, (preferences) => preferences.user)
+  @OneToOne(() => UserPreferences, (preferences) => preferences.user, {
+    cascade: true,
+  })
   preferences!: UserPreferences;
 
-  @ManyToOne(() => Currency, (currency) => currency.users)
+  @ManyToOne(() => Currency, (currency) => currency.users, { cascade: true })
   @JoinColumn({ name: "currency_id" })
   currency!: Currency;
 
-  @OneToMany(() => Account, (account) => account.user)
+  @OneToMany(() => Account, (account) => account.user, { cascade: true })
   accounts!: Account[];
 
-  @OneToMany(() => Category, (category) => category.user)
+  @OneToMany(() => Category, (category) => category.user, { cascade: true })
   categories!: Category[];
 
-  @OneToMany(() => Merchants, (merchant) => merchant.user)
+  @OneToMany(() => Merchants, (merchant) => merchant.user, { cascade: true })
   merchants!: Merchants[];
 
-  @OneToMany(() => Tag, (tag) => tag.user)
+  @OneToMany(() => Tag, (tag) => tag.user, { cascade: true })
   tags!: Tag[];
 
-  @OneToMany(() => Budget, (budget) => budget.user)
+  @OneToMany(() => Budget, (budget) => budget.user, { cascade: true })
   budgets!: Budget[];
 
-  @OneToMany(() => Goal, (goal) => goal.user)
+  @OneToMany(() => Goal, (goal) => goal.user, { cascade: true })
   goals!: Goal[];
 
-  @OneToMany(() => Bill, (bill) => bill.user)
+  @OneToMany(() => Bill, (bill) => bill.user, { cascade: true })
   bills!: Bill[];
 
-  @OneToMany(() => Debt, (debt) => debt.user)
+  @OneToMany(() => Debt, (debt) => debt.user, { cascade: true })
   debts!: Debt[];
 
-  @OneToMany(() => TaxFiling, (taxFiling) => taxFiling.user)
+  @OneToMany(() => TaxFiling, (taxFiling) => taxFiling.user, { cascade: true })
   taxFilings!: TaxFiling[];
 
-  @OneToMany(() => Notification, (notification) => notification.user)
+  @OneToMany(() => Notification, (notification) => notification.user, {
+    cascade: true,
+  })
   notifications!: Notification[];
 
-  @OneToMany(() => AuditLogs, (auditLog) => auditLog.user)
+  @OneToMany(() => AuditLogs, (auditLog) => auditLog.user, { cascade: true })
   auditLogs!: AuditLogs[];
 }
