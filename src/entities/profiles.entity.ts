@@ -3,7 +3,6 @@ import {
   BaseEntity,
   Column,
   Entity,
-  ForeignKey,
   JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -33,13 +32,16 @@ export class Profile extends BaseEntity {
   country!: string;
 
   @Field(() => String, { nullable: true })
-  @Column("text", { nullable: true })
-  postalCode!: string;
+  @Column("integer", { nullable: true })
+  postalCode!: number;
 
   // @ForeignKey(() => String)
   // userId!: string;
 
-  @OneToOne(() => User, (user) => user.profile)
+  @Field(() => Profile)
+  profileUpdate!: Profile;
+
+  @OneToOne(() => User, (user) => user.profile, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user!: User;
 }

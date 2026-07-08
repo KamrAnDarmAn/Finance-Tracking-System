@@ -19,19 +19,19 @@ import { User } from "./users.entity.ts";
 @ObjectType()
 @Entity("accounts")
 export class Account extends BaseEntity {
-  @Field((type) => String!)
+  @Field((_type) => String!)
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Field((type) => String)
+  @Field((_type) => String)
   @Column("text")
   name!: string;
 
-  @Field((type) => Float)
+  @Field((_type) => Float)
   @Column("decimal")
   balance!: string;
 
-  @Field((type) => String)
+  @Field((_type) => String)
   @Column("text")
   supportPhone!: string;
 

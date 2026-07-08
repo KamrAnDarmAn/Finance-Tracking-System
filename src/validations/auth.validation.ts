@@ -14,7 +14,7 @@ export const signupSchema = z.object({
       address: z.string().optional(),
       city: z.string().optional(),
       country: z.string().optional(),
-      postalCode: z.string().optional(),
+      postalCode: z.number().optional(),
     })
     .optional(),
 });
@@ -29,3 +29,8 @@ export const signinSchema = z.object({
 });
 
 export type SigninType = z.infer<typeof signinSchema>;
+
+export const TestMidSchema = z.object({
+  name: z.string(),
+  age: z.string()
+})

@@ -11,15 +11,15 @@ import { Account } from "./accounts.entity.ts";
 @ObjectType()
 @Entity("account_types")
 export class AccountType extends BaseEntity {
-  @Field((type) => String!)
+  @Field((_type) => String!)
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Field((type) => String)
+  @Field((_type) => String)
   @Column("text")
   name!: string;
 
-  @Field((type) => String)
+  @Field((_type) => String)
   @Column("text")
   description!: string;
 

@@ -5,11 +5,9 @@ import {
   Arg,
   ArgsType,
   Field,
-  Args,
   ObjectType,
   Ctx,
   InputType,
-  Authorized,
   UseMiddleware,
 } from "type-graphql";
 import { User } from "../entities/users.entity.ts";
@@ -17,10 +15,12 @@ import bcrypt from "bcryptjs";
 import { GraphQLContext } from "../types/index.ts";
 import { createAccessToken, createRefereshToken } from "../lib/auth.ts";
 import { db } from "@/lib/db.ts";
-import { testMiddlware } from "@/middlewares/test.middleware.ts";
+import { validateSchema } from "@/middlewares/validate-schema.middleware.ts";
+import { signinSchema, signupSchema } from "@/validations/auth.validation.ts";
+import { protectedUser } from "@/middlewares/auth.middleware.ts";
 
 @InputType()
-class ProfileInput {
+export class ProfileInput {
   @Field(() => String, { nullable: true })
   phone!: string;
   @Field(() => String, { nullable: true })
@@ -29,37 +29,37 @@ class ProfileInput {
   city!: string;
   @Field(() => String, { nullable: true })
   country!: string;
-  @Field(() => String, { nullable: true })
-  postalCode!: string;
+  @Field(() => Number, { nullable: true })
+  postalCode!: number;
 }
 
-@ArgsType()
-class CredentialsArgs {
-  @Field((type) => String!)
-  email!: string;
-
-  @Field((type) => String!)
-  password!: string;
-
-  @Field((type) => String!)
-  username!: string;
-}
+// @ArgsType()
+// class CredentialsArgs {
+//   @Field((_type) => String!)
+//   email!: string;
+//
+//   @Field((_tyee) => String!)
+//   password!: string;
+//
+//   @Field((_type) => String!)
+//   username!: string;
+// }
 
 @ObjectType()
 class AuthPayload {
-  @Field((returns) => Boolean)
+  @Field((_returns) => Boolean)
   success!: boolean;
 
-  @Field((returns) => String, { nullable: true })
+  @Field((_returns) => String, { nullable: true })
   token!: string;
 
-  @Field((returns) => String, { nullable: false })
+  @Field((_returns) => String, { nullable: false })
   message!: string;
 }
 
 @Resolver()
 export class AuthResolvers {
-  @Query((returns) => [User])
+  @Query((_returns) => [User])
   async users() {
     const users = await User.find();
 
@@ -67,7 +67,8 @@ export class AuthResolvers {
 
     return users;
   }
-  @Mutation((returns) => AuthPayload)
+  @Mutation((_returns) => AuthPayload)
+  @UseMiddleware(validateSchema(signupSchema))
   async signup(
     @Arg("email", () => String!, { nullable: false }) email: string,
     @Arg("password", () => String!, { nullable: false }) password: string,
@@ -88,7 +89,7 @@ export class AuthResolvers {
       }
 
       const hashedPassword = await bcrypt.hash(password, 12);
-      const newUser = await db.user.create({
+      const newUser = db.user.create({
         email,
         password: hashedPassword,
         firstName,
@@ -98,10 +99,15 @@ export class AuthResolvers {
       newUser.save();
 
       if (profile) {
-        const newProfile = db.profile.create({ ...profile });
-        newProfile.user = newUser;
-        newProfile.save();
+        // const newProfile = db.profile.create({ ...profile });
+        // newProfile.user = newUser;
+        // await newProfile.save();
+        // TODO: 
       }
+      // basic preferences
+      const preferences = db.userPreferences.create({});
+      preferences.user = newUser;
+      await preferences.save();
 
       const accessToken = createAccessToken({ userId: newUser.id });
       const refereshToken = createRefereshToken({ userId: newUser.id });
@@ -120,7 +126,8 @@ export class AuthResolvers {
       };
     }
   }
-  @Mutation((returns) => AuthPayload)
+  @Mutation((_returns) => AuthPayload)
+  @UseMiddleware(validateSchema(signinSchema))
   async signin(
     @Arg("email", () => String!, { nullable: false }) email: string,
     @Arg("password", () => String!, { nullable: false }) password: string,
@@ -154,8 +161,8 @@ export class AuthResolvers {
     }
   }
 
-  @Query((returns) => User)
-  @Authorized()
+  @Query((_returns) => User)
+  @UseMiddleware(protectedUser)
   async me(@Ctx() { req }: GraphQLContext) {
     // if (!session) return null;
     console.log(req.user);

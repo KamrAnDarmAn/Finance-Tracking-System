@@ -6,13 +6,15 @@ import { expressMiddleware } from "@as-integrations/express5";
 import { GraphQLContext } from "./types/index.js";
 import helmet from "helmet";
 import cors from "cors";
-import { AuthChecker, buildSchema } from "type-graphql";
-import { AuthResolvers } from "./resolvers/auth.resolver.ts";
+import { buildSchema } from "type-graphql";
+import { AuthResolvers } from "./resolvers/auth.resolvers.ts";
 // import { initializeDatabase } from "./config/data-source.js
 
 import { AppDataSource } from "@/data-source.ts";
 import { authChecker, verifyAccessToken } from "./lib/auth.ts";
-import { UserResolver } from "./resolvers/user.resolver.ts";
+// import { UserResolver } from "./resolvers/user.resolvers.ts";
+import { AccountResolver } from "./resolvers/account.resolvers.ts";
+import { ProfilResolvers } from "./resolvers/profile.resolvers.ts";
 
 const app = express();
 
@@ -25,9 +27,9 @@ await AppDataSource.initialize();
 
 export const server = new ApolloServer({
   schema: await buildSchema({
-    resolvers: [AuthResolvers, UserResolver],
+    resolvers: [AuthResolvers, AccountResolver, ProfilResolvers],
     authChecker,
-    validateFn: (argValue, argType) => {},
+    validateFn: (_argValue, _argType) => { },
   }),
 });
 

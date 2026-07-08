@@ -4,7 +4,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ForeignKey,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -28,35 +27,34 @@ import {
   TaxFiling,
   UserPreferences,
 } from "@/entities/index.ts";
-import z from "zod";
 
 @ObjectType()
 @Entity("users")
 export class User extends BaseEntity {
-  @Field((type) => ID!)
+  @Field((_type) => ID!)
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Field((type) => String!)
+  @Field((_type) => String!)
   @Column("text", { unique: true })
   email!: string;
 
   @Column("text")
   password!: string;
 
-  @Field((type) => String!)
+  @Field((_type) => String!)
   @Column("text", { default: "" })
   firstName!: string;
 
-  @Field((type) => String, { nullable: true })
+  @Field((_type) => String, { nullable: true })
   @Column("text")
   lastName!: string;
 
-  @Field((type) => String!)
+  @Field((_type) => String!)
   @CreateDateColumn()
   createdAt!: Date;
 
-  @Field((type) => String!)
+  @Field((_type) => String!)
   @UpdateDateColumn()
   updatedAt!: Date;
 
@@ -73,6 +71,11 @@ export class User extends BaseEntity {
     cascade: true,
   })
   preferences!: UserPreferences;
+
+  @Field(() => UserPreferences)
+  _preferences!: UserPreferences;
+
+  // TODO implement forget password
 
   @ManyToOne(() => Currency, (currency) => currency.users, { cascade: true })
   @JoinColumn({ name: "currency_id" })
