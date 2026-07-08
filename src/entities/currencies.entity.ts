@@ -1,3 +1,4 @@
+import { Field, ID, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -9,17 +10,22 @@ import { Account } from "./accounts.entity.ts";
 import { ExchangeRate } from "./exchange-rates.entity.ts";
 import { User } from "./users.entity.ts";
 
+@ObjectType()
 @Entity("currencies")
 export class Currency extends BaseEntity {
+  @Field(() => ID)
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
+  @Field(() => String)
   @Column("text")
   name!: string;
 
+  @Field(() => String)
   @Column("text")
   code!: string;
 
+  @Field(() => String)
   @Column("text")
   symbol!: string;
 

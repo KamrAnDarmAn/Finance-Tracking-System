@@ -12,6 +12,9 @@ import { AppDataSource } from "@/data-source.ts";
 import { authChecker, verifyAccessToken } from "./lib/auth.ts";
 import { UserResolver } from "./resolvers/user.resolvers.ts";
 import { AccountResolver } from "./resolvers/account.resolvers.ts";
+import { AccountTypeResolvers } from "./resolvers/account-type.resolvers.ts";
+import { InstitutionResolvers } from "./resolvers/institution.resolvers.ts";
+import { CurrencyResolvers } from "./resolvers/currency.resolvers.ts";
 import { ProfileResolvers } from "./resolvers/profile.resolvers.ts";
 import { PreferencesResolvers } from "./resolvers/preferences.resolvers.ts";
 
@@ -32,6 +35,9 @@ export const server = new ApolloServer({
       ProfileResolvers,
       PreferencesResolvers,
       AccountResolver,
+      AccountTypeResolvers,
+      InstitutionResolvers,
+      CurrencyResolvers,
     ],
     authChecker,
     validateFn: (_argValue, _argType) => { },
