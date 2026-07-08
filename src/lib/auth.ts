@@ -25,6 +25,8 @@ export const authChecker = async ({ context }: { context: GraphQLContext }) => {
 
     const decode = (await verifyAccessToken(token)) as { userId: string };
     const user = await db.user.findOneBy({ id: decode.userId });
+    if (!user) return false;
+
     context.req.user = user;
     return true;
   } catch (error) {
