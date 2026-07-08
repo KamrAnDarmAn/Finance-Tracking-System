@@ -28,9 +28,6 @@ export class UserPreferences extends BaseEntity {
   @Column("boolean", { default: false })
   receiveEmailNotification!: boolean;
 
-  @Field(() => UserPreferences)
-  preferencesUpdate!: UserPreferences;
-
   @OneToOne(() => User, (user) => user.preferences)
   @JoinColumn({ name: "user_id" })
   user!: User;

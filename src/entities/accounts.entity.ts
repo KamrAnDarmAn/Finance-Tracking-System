@@ -35,25 +35,30 @@ export class Account extends BaseEntity {
   @Column("text")
   supportPhone!: string;
 
-  @Field(() => Boolean!)
+  @Field(() => Boolean)
   @Column("boolean")
   isActive!: boolean;
 
-  @ManyToOne(() => User, (user) => user.accounts)
-  @JoinColumn({ name: "user_id" })
-  user!: User;
-
-  @ManyToOne(() => Institution, (institution) => institution.accounts)
-  @JoinColumn({ name: "institution_id" })
-  institution!: Institution;
-
+  @Field(() => AccountType)
   @ManyToOne(() => AccountType, (accountType) => accountType.accounts)
   @JoinColumn({ name: "account_type_id" })
   accountType!: AccountType;
 
+  @Field(() => Institution, { nullable: true })
+  @ManyToOne(() => Institution, (institution) => institution.accounts, {
+    nullable: true,
+  })
+  @JoinColumn({ name: "institution_id" })
+  institution?: Institution | null;
+
+  @Field(() => Currency)
   @ManyToOne(() => Currency, (currency) => currency.accounts)
   @JoinColumn({ name: "currency_id" })
   currency!: Currency;
+
+  @ManyToOne(() => User, (user) => user.accounts)
+  @JoinColumn({ name: "user_id" })
+  user!: User;
 
   @OneToMany(() => Transaction, (transaction) => transaction.account)
   transactions!: Transaction[];

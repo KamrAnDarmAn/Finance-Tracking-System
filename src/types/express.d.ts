@@ -1,13 +1,9 @@
-import { Request } from 'express-serve-static-core'
-interface UserPayload {
-  userId: string;
-}
+import { User } from "@/entities/users.entity.ts";
 
-// 2. Augment the global Express namespace
 declare global {
   namespace Express {
     interface Request {
-      user?: CustomUser; // Optional because not all routes are authenticated
+      user?: User;
     }
   }
 }

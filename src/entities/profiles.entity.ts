@@ -38,9 +38,6 @@ export class Profile extends BaseEntity {
   // @ForeignKey(() => String)
   // userId!: string;
 
-  @Field(() => Profile)
-  profileUpdate!: Profile;
-
   @OneToOne(() => User, (user) => user.profile, { onDelete: "CASCADE" })
   @JoinColumn({ name: "user_id" })
   user!: User;

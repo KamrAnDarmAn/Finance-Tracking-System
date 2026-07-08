@@ -11,7 +11,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx src/seeds/reference-data.seed.ts"
   },
   "packageManager": "yarn@4.17.0",
   "dependencies": {
